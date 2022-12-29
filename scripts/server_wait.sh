@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+[ "$provision_debug" = "true" ] && set -x
+
 # wait node is ready
 retries=0
 while [ true ]; do

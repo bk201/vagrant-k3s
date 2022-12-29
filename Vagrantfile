@@ -3,7 +3,7 @@ require 'yaml'
 $root_dir = File.dirname(File.expand_path(__FILE__))
 $settings = YAML.load_file(File.join($root_dir, "settings.yaml"))
 $runtime_type = ""
-$box = ""
+$box = "opensuse/Leap-15.3.x86_64"
 
 def detect_runtime
   # example: v1.24.5-rc4+rke2r1
@@ -15,57 +15,25 @@ def detect_runtime
   end
 
   $runtime_type = m[3]
-  $box = "bk201z/#{$runtime_type}-#{m[1]}"
-  # TODO: check box exists
+
+  if $settings['net_install'] == false
+    $box = "bk201z/#{$runtime_type}-#{m[1]}"
+    # TODO: check box exists
+  end
 
   File.open(File.join($root_dir, "runtime"), "w") { |f| f.write $runtime_type }
 end
 
 detect_runtime
 
-
-$provision_server_config = <<-PROVISION_SERVER_CONFIG
-cat > /etc/bash.bashrc.local <<EOF
-if [ -z "$KUBECONFIG" ]; then
-    if [ -e /etc/rancher/rke2/rke2.yaml ]; then
-        export KUBECONFIG="/etc/rancher/rke2/rke2.yaml"
-    else
-        export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
-    fi
-fi
-export PATH="${PATH}:/var/lib/rancher/rke2/bin"
-if [ -z "$CONTAINER_RUNTIME_ENDPOINT" ]; then
-    export CONTAINER_RUNTIME_ENDPOINT=unix:///var/run/k3s/containerd/containerd.sock
-fi
-if [ -z "$IMAGE_SERVICE_ENDPOINT" ]; then
-    export IMAGE_SERVICE_ENDPOINT=unix:///var/run/k3s/containerd/containerd.sock
-fi
-
-# For ctr
-if [ -z "$CONTAINERD_ADDRESS" ]; then
-    export CONTAINERD_ADDRESS=/run/k3s/containerd/containerd.sock
-fi
-EOF
-
-PROVISION_SERVER_CONFIG
-
-
-$provision_server = <<-PROVISION_SERVER
-INSTALL_K3S_SKIP_DOWNLOAD=true K3S_TOKEN=#{$settings['token']} k3s-install.sh
-
-PROVISION_SERVER
-
-
-$provision_agent = <<-PROVISION_AGENT
-INSTALL_K3S_SKIP_DOWNLOAD=true K3S_TOKEN=#{$settings['token']} K3S_URL=https://#{$settings['server_ip']}:6443 k3s-install.sh
-
-PROVISION_AGENT
+# Pupulate a env hash to pass to provision shell env
+$provision_env = {}
+$settings.each { |key, value|
+  $provision_env["provision_#{key}"] = value
+}
 
 
 Vagrant.configure("2") do |config|
-  # config.vm.box_url = "file://packer/output-leap15dot4/package.box"
-	# config.vm.box = "test"
-  # config.vm.box = "opensuse/Leap-15.3.x86_64"
   config.vm.box = $box
   # config.vm.box_version = ""
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -94,14 +62,14 @@ Vagrant.configure("2") do |config|
         # lv.graphics_ip = '0.0.0.0'
       end
 
-      node.vm.provision "shell", path: './scripts/common_prepare.sh'
+      node.vm.provision "shell", env: $provision_env, path: './scripts/common_prepare.sh'
       # The first node is server, others are workers
       if i == 1
-        node.vm.provision "shell", inline: $provision_server_config
-        node.vm.provision "shell", inline: $provision_server
-        node.vm.provision "shell", path: './scripts/server_wait.sh'
+        node.vm.provision "shell", env: $provision_env, path: './scripts/server_config.sh'
+        node.vm.provision "shell", env: $provision_env, path: './scripts/server_install.sh'
+        node.vm.provision "shell", env: $provision_env, path: './scripts/server_wait.sh'
       else
-        node.vm.provision "shell", inline: $provision_agent
+        node.vm.provision "shell", env: $provision_env, path: './scripts/agent_install.sh'
       end
     end
   end
