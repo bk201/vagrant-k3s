@@ -1,0 +1,8 @@
+kubernetes_version: v1.24.9+k3s1
+token: sometoken
+cluster_size: 3
+
+server_ip: 192.168.121.71
+
+driver: kvm
+ci: false
