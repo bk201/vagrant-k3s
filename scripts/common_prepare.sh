@@ -11,7 +11,15 @@ zypper rr -a && zypper ar  http://free.nchc.org.tw/opensuse/update/leap/15.5/oss
 zypper ref
 zypper in -y apparmor-parser iptables k9s
 
+exit 0
 
-KUBECTL_VERSION="v1.29.9"
-curl -sfL https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl > /usr/bin/kubectl && chmod +x /usr/bin/kubectl
+# leave the code for backup, we can use the kubectl shipped with k3s
+if [ -n "$provision_kubernetes_version" ]; then
+  kubectl_version=${provision_kubernetes_version%%+k3s*}
+  echo "Install kubectl $kubectl_version from upstream..."
+  curl -sfL https://dl.k8s.io/release/${kubectl_version}/bin/linux/amd64/kubectl > /usr/bin/kubectl && chmod +x /usr/bin/kubectl
+else
+  echo "Install kubectl from os repo..."
+  zypper in -y kubernetes-client
+fi
 

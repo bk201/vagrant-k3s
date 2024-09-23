@@ -10,7 +10,7 @@ if [ -z "$KUBECONFIG" ]; then
         export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
     fi
 fi
-export PATH="${PATH}:/var/lib/rancher/rke2/bin"
+export PATH="${PATH}:/var/lib/rancher/rke2/bin:/var/lib/rancher/k3s/data/current/bin"
 if [ -z "$CONTAINER_RUNTIME_ENDPOINT" ]; then
     export CONTAINER_RUNTIME_ENDPOINT=unix:///var/run/k3s/containerd/containerd.sock
 fi
