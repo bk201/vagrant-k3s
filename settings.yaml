@@ -5,6 +5,8 @@ net_install: true
 
 server_ip: 192.168.121.124
 
+longhorn_version: 1.7.1
+
 debug: false
 driver: kvm
 ci: false
