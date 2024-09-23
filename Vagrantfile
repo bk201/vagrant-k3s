@@ -3,7 +3,7 @@ require 'yaml'
 $root_dir = File.dirname(File.expand_path(__FILE__))
 $settings = YAML.load_file(File.join($root_dir, "settings.yaml"))
 $runtime_type = ""
-$box = "opensuse/Leap-15.5.x86_64"
+$box = "opensuse/Leap-15.6.x86_64"
 
 def detect_runtime
   # example: v1.24.5-rc4+rke2r1
