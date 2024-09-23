@@ -9,7 +9,7 @@ fi
 
 zypper rr -a && zypper ar  http://free.nchc.org.tw/opensuse/update/leap/15.5/oss/ update && zypper ar http://free.nchc.org.tw/opensuse/distribution/leap/15.5/repo/oss/ oss
 zypper ref
-zypper in -y apparmor-parser iptables k9s
+zypper in -y apparmor-parser iptables k9s wget open-iscsi
 
 exit 0
 
