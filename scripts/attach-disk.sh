@@ -5,11 +5,23 @@
 # (1) It attaches a virtio-scsi controller to a domain if the domain doesn't have a controller yet.
 # (2) It detects the next available /dev/sd* device name.
 # (3) Create a qcow2 file under $DISKS_DIR and attach it to the provided domain.
+#
+# Usage: attach-disk.sh <node> [disk_dir_domain]
+#
 
 NODE=$1
 SIZE=30
 
-DISKS_DIR=/tmp/hotplug_disks
+if [ -z $NODE ]; then
+  echo "Usage: $0 <node> [disk_dir_domain]"
+  exit 1
+fi
+
+if [ -z $2 ]; then
+  DISKS_DIR=/tmp/hotplug_disks
+else
+  DISKS_DIR=/tmp/hotplug_disks/$2
+fi
 
 TOP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." &> /dev/null && pwd )"
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
