@@ -9,15 +9,15 @@
 # Usage: attach-disk.sh <node> [disk_dir_domain]
 #
 
-NODE=$1
-SIZE=30
-
-if [ -z $NODE ]; then
+if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <node> [disk_dir_domain]"
   exit 1
 fi
 
-if [ -z $2 ]; then
+NODE=$1
+SIZE=30
+
+if [ "$#" -lt 2 ]; then
   DISKS_DIR=/tmp/hotplug_disks
 else
   DISKS_DIR=/tmp/hotplug_disks/$2
