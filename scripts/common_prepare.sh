@@ -11,6 +11,14 @@ zypper rr -a && zypper ar  http://download.opensuse.org/update/leap/15.5/oss/ up
 zypper ref
 zypper in -y apparmor-parser iptables k9s wget open-iscsi
 
+
+# The following steps are for spdk
+echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+modprobe vfio_pci
+modprobe uio_pci_generic
+modprobe nvme_tcp
+#
+
 exit 0
 
 # leave the code for backup, we can use the kubectl shipped with k3s

@@ -50,7 +50,7 @@ Vagrant.configure("2") do |config|
           lv.cpu_mode = 'host-passthrough'
         end
 
-        lv.memory = 8192
+        lv.memory = 16384
         lv.cpus = 8
 
         if $settings['ci']
